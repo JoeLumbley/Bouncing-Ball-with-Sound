@@ -104,9 +104,13 @@ Public Class Form1
 
         AudioPlayer.AddSound("loop", FilePath)
 
-        AudioPlayer.SetVolume("loop", 600)
+        AudioPlayer.SetVolume("loop", 200)
 
         AudioPlayer.LoopSound("loop")
+
+        AudioPlayer.AddOverlapping("bounce", Path.Combine(Application.StartupPath, "bounce.mp3"))
+
+        AudioPlayer.SetVolumeOverlapping("bounce", 150)
 
 
 
@@ -161,21 +165,51 @@ Public Class Form1
         If ballPos.X <= 0 Then
             ballPos.X = 0
             velX = Math.Abs(velX)
+
+            'AudioPlayer.PlayOverlapping("bounce")
+            PlayWithCooldown("bounce", 100)
+
         ElseIf ballPos.X >= ClientSize.Width - ballDiameter Then
             ballPos.X = ClientSize.Width - ballDiameter
             velX = -Math.Abs(velX)
+
+            'AudioPlayer.PlayOverlapping("bounce")
+            PlayWithCooldown("bounce", 100)
+
         End If
 
         ' Vertical bounce
         If ballPos.Y <= 0 Then
             ballPos.Y = 0
             velY = Math.Abs(velY)
+
+            'AudioPlayer.PlayOverlapping("bounce")
+            PlayWithCooldown("bounce", 100)
+
+
         ElseIf ballPos.Y >= ClientSize.Height - ballDiameter Then
             ballPos.Y = ClientSize.Height - ballDiameter
             velY = -Math.Abs(velY)
+
+            PlayWithCooldown("bounce", 100)
+
         End If
 
     End Sub
+
+
+
+    Private lastPlay As New Dictionary(Of String, Double)
+
+    Public Function PlayWithCooldown(name As String, ms As Integer)
+        Dim now = Environment.TickCount
+        If lastPlay.ContainsKey(name) AndAlso now - lastPlay(name) < ms Then
+            Return False
+        End If
+        lastPlay(name) = now
+        AudioPlayer.PlayOverlapping(name)
+    End Function
+
 
     ' -------------------------------
     '  Trail Update
@@ -303,6 +337,8 @@ Public Class Form1
             Next
         End If
 
+        AudioPlayer.CloseAll()
+
     End Sub
 
 
@@ -311,6 +347,12 @@ Public Class Form1
         Dim FilePath As String = Path.Combine(Application.StartupPath, "loop.mp3")
 
         CreateFileFromResource(FilePath, My.Resources.Resource1.BB_MegaLoop)
+
+        FilePath = Path.Combine(Application.StartupPath, "bounce.mp3")
+
+        CreateFileFromResource(FilePath, My.Resources.Resource1.Bounce)
+
+
 
 
     End Sub
