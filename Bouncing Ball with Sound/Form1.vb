@@ -231,8 +231,6 @@ Public Class Form1
 
     End Sub
 
-
-
     Public Sub PlayWithCooldown(name As String, ms As Integer)
         Dim now = Environment.TickCount
         If lastPlay.ContainsKey(name) AndAlso now - lastPlay(name) < ms Then
