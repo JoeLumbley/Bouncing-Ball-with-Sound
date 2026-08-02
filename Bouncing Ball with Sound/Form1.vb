@@ -165,9 +165,9 @@ Public Class Form1
 
         CreateSoundFiles()
 
-        Dim FilePath As String = Path.Combine(Application.StartupPath, "loop.mp3")
+        'Dim FilePath As String = Path.Combine(Application.StartupPath, "loop.mp3")
 
-        AudioPlayer.AddSound("loop", FilePath)
+        AudioPlayer.AddSound("loop", Path.Combine(Application.StartupPath, "loop.mp3"))
 
         AudioPlayer.SetVolume("loop", 200)
 
