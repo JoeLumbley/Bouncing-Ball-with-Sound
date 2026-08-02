@@ -411,8 +411,6 @@ Public Class Form1
         CreateFileFromResource(FilePath, My.Resources.Resource1.Bounce)
 
 
-
-
     End Sub
 
     Private Sub CreateFileFromResource(filepath As String, resource As Byte())
