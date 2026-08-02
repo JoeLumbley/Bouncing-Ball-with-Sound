@@ -64,6 +64,10 @@ Public Class Form1
     Private trailSizes As Integer()
     Private trailOffsets As Single()
 
+    Private lastPlay As New Dictionary(Of String, Double)
+
+    Private trailAlpha As Integer()
+
 
 
     Public Sub New()
@@ -75,6 +79,8 @@ Public Class Form1
 
         Me.DoubleBuffered = True
         Me.BackColor = Color.Black
+        Me.StartPosition = FormStartPosition.CenterScreen
+        Me.WindowState = FormWindowState.Maximized
 
         ' Center ball
         ballPos = New PointF((ClientSize.Width - ballDiameter) / 2,
@@ -97,33 +103,32 @@ Public Class Form1
     Protected Overrides Sub OnLoad(e As EventArgs)
         MyBase.OnLoad(e)
 
+        InitAudio()
+        InitGraphics()
+        InitTrails()
+        InitPhysics()
 
-        CreateSoundFiles()
+    End Sub
 
-        Dim FilePath As String = Path.Combine(Application.StartupPath, "loop.mp3")
+    Private Sub InitPhysics()
+        physicsTimer.Start()
+    End Sub
 
-        AudioPlayer.AddSound("loop", FilePath)
-
-        AudioPlayer.SetVolume("loop", 200)
-
-        AudioPlayer.LoopSound("loop")
-
-        AudioPlayer.AddOverlapping("bounce", Path.Combine(Application.StartupPath, "bounce.mp3"))
-
-        AudioPlayer.SetVolumeOverlapping("bounce", 150)
-
-
-
+    Private Sub InitGraphics()
         ' Core GDI resources
         ballBrush = New SolidBrush(Color.DeepSkyBlue)
         fpsBrush = New SolidBrush(Color.White)
         fpsFont = New Font("Segoe UI", 14, FontStyle.Bold)
+    End Sub
 
-        ' Preallocate trail brushes
-        trailBrushes = New SolidBrush(trailLength - 1) {}
-        For i As Integer = 0 To trailLength - 1
-            trailBrushes(i) = New SolidBrush(Color.FromArgb(0, 0, 191, 255))
-        Next
+    Private Sub InitTrails()
+
+
+        '' Preallocate trail brushes
+        'trailBrushes = New SolidBrush(trailLength - 1) {}
+        'For i As Integer = 0 To trailLength - 1
+        '    trailBrushes(i) = New SolidBrush(Color.FromArgb(0, 0, 191, 255))
+        'Next
 
         ' Precompute trail sizes and offsets
         trailSizes = New Integer(trailLength - 1) {}
@@ -137,7 +142,36 @@ Public Class Form1
             trailOffsets(i) = CSng((ballDiameter - size) / 2)
         Next
 
-        physicsTimer.Start()
+        ' Precompute trail alpha values for exponential fade
+        trailAlpha = New Integer(trailLength - 1) {}
+        For i As Integer = 0 To trailLength - 1
+            Dim t As Double = i / trailLength
+            trailAlpha(i) = CInt(32 * t * t)   ' your exponential fade
+        Next
+
+        ' Preallocate trail brushes
+        trailBrushes = New SolidBrush(trailLength - 1) {}
+        For i As Integer = 0 To trailLength - 1
+            trailBrushes(i) = New SolidBrush(Color.FromArgb(trailAlpha(i), 0, 191, 255))
+        Next
+
+
+    End Sub
+
+    Private Sub InitAudio()
+        CreateSoundFiles()
+
+        Dim FilePath As String = Path.Combine(Application.StartupPath, "loop.mp3")
+
+        AudioPlayer.AddSound("loop", FilePath)
+
+        AudioPlayer.SetVolume("loop", 200)
+
+        AudioPlayer.LoopSound("loop")
+
+        AudioPlayer.AddOverlapping("bounce", Path.Combine(Application.StartupPath, "bounce.mp3"))
+
+        AudioPlayer.SetVolumeOverlapping("bounce", 150)
     End Sub
 
     ' -------------------------------
@@ -199,16 +233,16 @@ Public Class Form1
 
 
 
-    Private lastPlay As New Dictionary(Of String, Double)
-
-    Public Function PlayWithCooldown(name As String, ms As Integer)
+    Public Sub PlayWithCooldown(name As String, ms As Integer)
         Dim now = Environment.TickCount
         If lastPlay.ContainsKey(name) AndAlso now - lastPlay(name) < ms Then
-            Return False
+            'Return False
+            Return
         End If
         lastPlay(name) = now
         AudioPlayer.PlayOverlapping(name)
-    End Function
+        'Return True
+    End Sub
 
 
     ' -------------------------------
@@ -239,31 +273,65 @@ Public Class Form1
         DrawFPS(g)
     End Sub
 
+    'Private Sub DrawTrail(g As Graphics)
+
+    '    Dim count As Integer = Math.Min(trail.Count, trailLength)
+
+    '    For i As Integer = 0 To count - 1
+
+    '        ' Smooth exponential fade
+    '        Dim t As Double = i / trailLength
+
+    '        ' Capping alpha at 255 will make the trail more pronounced,
+    '        ' Dim alpha As Integer = CInt(255 * t * t)
+    '        ' but can be harsh. Capping at 32 gives a softer glow.
+    '        Dim alpha As Integer = CInt(32 * t * t)
+
+
+    '        If alpha > 255 Then alpha = 255
+
+    '        trailBrushes(i).Color = Color.FromArgb(alpha, 0, 191, 255)
+
+    '        Dim p As PointF = trail(i)
+    '        Dim size As Integer = trailSizes(i)
+    '        Dim offset As Single = trailOffsets(i)
+
+    '        g.FillEllipse(trailBrushes(i),
+    '                      p.X + offset,
+    '                      p.Y + offset,
+    '                      size,
+    '                      size)
+    '    Next
+
+    'End Sub
+
     Private Sub DrawTrail(g As Graphics)
 
         Dim count As Integer = Math.Min(trail.Count, trailLength)
 
         For i As Integer = 0 To count - 1
 
-            ' Smooth exponential fade
-            Dim t As Double = i / trailLength
-            Dim alpha As Integer = CInt(32 * t * t)
-            If alpha > 255 Then alpha = 255
-
-            trailBrushes(i).Color = Color.FromArgb(alpha, 0, 191, 255)
-
             Dim p As PointF = trail(i)
             Dim size As Integer = trailSizes(i)
             Dim offset As Single = trailOffsets(i)
 
             g.FillEllipse(trailBrushes(i),
-                          p.X + offset,
-                          p.Y + offset,
-                          size,
-                          size)
+                      p.X + offset,
+                      p.Y + offset,
+                      size,
+                      size)
         Next
 
     End Sub
+
+
+
+
+
+
+
+
+
 
     Private Sub DrawBall(g As Graphics)
         g.FillEllipse(ballBrush,
