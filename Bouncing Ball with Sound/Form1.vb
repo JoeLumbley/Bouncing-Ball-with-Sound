@@ -98,6 +98,7 @@ Public Class Form1
 
         sw.Start()
         fpsTimer.Start()
+
     End Sub
 
     Protected Overrides Sub OnLoad(e As EventArgs)
@@ -111,18 +112,21 @@ Public Class Form1
     End Sub
 
     Private Sub InitPhysics()
+
         physicsTimer.Start()
+
     End Sub
 
     Private Sub InitGraphics()
+
         ' Core GDI resources
         ballBrush = New SolidBrush(Color.DeepSkyBlue)
         fpsBrush = New SolidBrush(Color.White)
         fpsFont = New Font("Segoe UI", 14, FontStyle.Bold)
+
     End Sub
 
     Private Sub InitTrails()
-
 
         '' Preallocate trail brushes
         'trailBrushes = New SolidBrush(trailLength - 1) {}
@@ -155,10 +159,10 @@ Public Class Form1
             trailBrushes(i) = New SolidBrush(Color.FromArgb(trailAlpha(i), 0, 191, 255))
         Next
 
-
     End Sub
 
     Private Sub InitAudio()
+
         CreateSoundFiles()
 
         Dim FilePath As String = Path.Combine(Application.StartupPath, "loop.mp3")
@@ -172,6 +176,7 @@ Public Class Form1
         AudioPlayer.AddOverlapping("bounce", Path.Combine(Application.StartupPath, "bounce.mp3"))
 
         AudioPlayer.SetVolumeOverlapping("bounce", 150)
+
     End Sub
 
     ' -------------------------------
@@ -200,14 +205,12 @@ Public Class Form1
             ballPos.X = 0
             velX = Math.Abs(velX)
 
-            'AudioPlayer.PlayOverlapping("bounce")
             PlayWithCooldown("bounce", 100)
 
         ElseIf ballPos.X >= ClientSize.Width - ballDiameter Then
             ballPos.X = ClientSize.Width - ballDiameter
             velX = -Math.Abs(velX)
 
-            'AudioPlayer.PlayOverlapping("bounce")
             PlayWithCooldown("bounce", 100)
 
         End If
@@ -217,7 +220,6 @@ Public Class Form1
             ballPos.Y = 0
             velY = Math.Abs(velY)
 
-            'AudioPlayer.PlayOverlapping("bounce")
             PlayWithCooldown("bounce", 100)
 
 
@@ -234,12 +236,10 @@ Public Class Form1
     Public Sub PlayWithCooldown(name As String, ms As Integer)
         Dim now = Environment.TickCount
         If lastPlay.ContainsKey(name) AndAlso now - lastPlay(name) < ms Then
-            'Return False
             Return
         End If
         lastPlay(name) = now
         AudioPlayer.PlayOverlapping(name)
-        'Return True
     End Sub
 
 
@@ -269,6 +269,7 @@ Public Class Form1
         DrawTrail(g)
         DrawBall(g)
         DrawFPS(g)
+
     End Sub
 
     'Private Sub DrawTrail(g As Graphics)
@@ -321,15 +322,6 @@ Public Class Form1
         Next
 
     End Sub
-
-
-
-
-
-
-
-
-
 
     Private Sub DrawBall(g As Graphics)
         g.FillEllipse(ballBrush,
