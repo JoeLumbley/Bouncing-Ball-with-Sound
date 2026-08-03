@@ -277,38 +277,6 @@ Public Class Form1
 
     End Sub
 
-    'Private Sub DrawTrail(g As Graphics)
-
-    '    Dim count As Integer = Math.Min(trail.Count, trailLength)
-
-    '    For i As Integer = 0 To count - 1
-
-    '        ' Smooth exponential fade
-    '        Dim t As Double = i / trailLength
-
-    '        ' Capping alpha at 255 will make the trail more pronounced,
-    '        ' Dim alpha As Integer = CInt(255 * t * t)
-    '        ' but can be harsh. Capping at 32 gives a softer glow.
-    '        Dim alpha As Integer = CInt(32 * t * t)
-
-
-    '        If alpha > 255 Then alpha = 255
-
-    '        trailBrushes(i).Color = Color.FromArgb(alpha, 0, 191, 255)
-
-    '        Dim p As PointF = trail(i)
-    '        Dim size As Integer = trailSizes(i)
-    '        Dim offset As Single = trailOffsets(i)
-
-    '        g.FillEllipse(trailBrushes(i),
-    '                      p.X + offset,
-    '                      p.Y + offset,
-    '                      size,
-    '                      size)
-    '    Next
-
-    'End Sub
-
     Private Sub DrawTrail(g As Graphics)
 
         Dim count As Integer = Math.Min(trail.Count, trailLength)
